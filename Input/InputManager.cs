@@ -1,19 +1,15 @@
-using UnityEngine;
-using QuickJam.Core;
 using System;
+using QuickJam.Core;
 
 namespace QuickJam.Input
 {
     public class InputManager : MonoSingleton<InputManager>
     {
-        protected override bool ShouldDontDestroyOnLoad => true;
-
         private QuickJamInputActions _inputActions;
 
-        public event Action OnPausePressed;
-        public event Action OnSubmitPressed;
+        protected override bool ShouldDontDestroyOnLoad => true;
         // add more event here...
-        
+
         protected override void Awake()
         {
             base.Awake();
@@ -35,5 +31,8 @@ namespace QuickJam.Input
 
             _inputActions.Disable();
         }
+
+        public event Action OnPausePressed;
+        public event Action OnSubmitPressed;
     }
 }

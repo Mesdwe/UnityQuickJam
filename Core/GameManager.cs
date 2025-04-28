@@ -1,6 +1,5 @@
-﻿
+﻿using QuickJam.Input;
 using UnityEngine;
-using QuickJam.Input;
 
 namespace QuickJam.Core
 {
@@ -12,75 +11,92 @@ namespace QuickJam.Core
         GameOver
     }
 
-
-    namespace QuickJam.Core
+    public class GameManager : MonoSingleton<GameManager>
     {
-        public class GameManager : MonoSingleton<GameManager>
+        [SerializeField] private string titleSceneName = "Frontend";
+        [SerializeField] private string gameplaySceneName = "InGame";
+        public GameState CurrentState { get; private set; }
+
+        protected override bool ShouldDontDestroyOnLoad => true;
+
+        private void Start()
         {
-            public GameState CurrentState { get; private set; }
-        
-            protected override bool ShouldDontDestroyOnLoad => true;
+            ChangeState(GameState.Title);
 
-            private void Start()
+            InputManager.Instance.OnPausePressed += HandlePausePressed;
+        }
+
+        private void OnDestroy()
+        {
+            if (InputManager.Instance != null) InputManager.Instance.OnPausePressed -= HandlePausePressed;
+        }
+
+        private void HandlePausePressed()
+        {
+            if (CurrentState == GameState.Playing)
+                PauseGame();
+            else if (CurrentState == GameState.Paused) ResumeGame();
+        }
+
+        public void ChangeState(GameState newState)
+        {
+            if (CurrentState == newState)
+                return;
+
+            switch (CurrentState)
             {
-                ChangeState(GameState.Title);
-
-                InputManager.Instance.OnPausePressed += HandlePausePressed;
+                case GameState.Title:
+                // Intentional fallthrough
+                case GameState.GameOver:
+                    if (newState == GameState.Playing)
+                        StartGame();
+                    if (newState == GameState.Title)
+                        ReturnToTitle();
+                    break;
+                case GameState.Playing:
+                    if (newState == GameState.Paused)
+                        PauseGame();
+                    else if (newState == GameState.GameOver)
+                        GameOver();
+                    break;
+                case GameState.Paused:
+                    if (newState == GameState.Playing)
+                        ResumeGame();
+                    break;
+                default:
+                    Debug.LogError($"Unhandled Game State: {newState}");
+                    return;
             }
 
-            private void OnDestroy()
-            {
-                if (InputManager.Instance != null)
-                {
-                    InputManager.Instance.OnPausePressed -= HandlePausePressed;
-                }
-            }
+            Debug.Log($"Game State changed to {newState}");
+            Time.timeScale = CurrentState == GameState.Paused ? 0f : 1f;
+        }
 
-            private void HandlePausePressed()
-            {
-                if (CurrentState == GameState.Playing)
-                {
-                    PauseGame();
-                }
-                else if (CurrentState == GameState.Paused)
-                {
-                    ResumeGame();
-                }
-            }
+        private void StartGame()
+        {
+            SceneLoader.Instance.LoadSceneAsync(gameplaySceneName);
+            CurrentState = GameState.Playing;
+        }
 
-            public void ChangeState(GameState newState)
-            {
-                CurrentState = newState;
-                Debug.Log($"Game State changed to {newState}");
-                Time.timeScale = (CurrentState == GameState.Paused) ? 0f : 1f;
-            }
+        private void PauseGame()
+        {
+            CurrentState = GameState.Paused;
+        }
 
-            public void StartGame()
-            {
-                ChangeState(GameState.Playing);
-            }
+        private void ResumeGame()
+        {
+            CurrentState = GameState.Playing;
+        }
 
-            public void PauseGame()
-            {
-                ChangeState(GameState.Paused);
-            }
+        private void GameOver()
+        {
+            CurrentState = GameState.GameOver;
+        }
 
-            public void ResumeGame()
-            {
-                ChangeState(GameState.Playing);
-            }
-
-            public void GameOver()
-            {
-                ChangeState(GameState.GameOver);
-            }
-
-            public void ReturnToTitle()
-            {
-                SceneLoader.Instance.LoadSceneAsync("Frontend");
-                ChangeState(GameState.Title);
-            }
+        private void ReturnToTitle()
+        {
+            SceneLoader.Instance.LoadSceneAsync(titleSceneName);
+            CurrentState = GameState.Title;
         }
     }
-
 }

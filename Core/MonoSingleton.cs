@@ -5,8 +5,8 @@ namespace QuickJam.Core
     public abstract class MonoSingleton<T> : MonoBehaviour where T : MonoBehaviour
     {
         private static T _instance;
-        private static object _lock = new object();
-        private static bool _applicationIsQuitting = false;
+        private static readonly object _lock = new();
+        private static bool _applicationIsQuitting;
 
         protected virtual bool ShouldDontDestroyOnLoad => true;
 
@@ -43,14 +43,12 @@ namespace QuickJam.Core
             if (_instance == null)
             {
                 _instance = this as T;
-                if (ShouldDontDestroyOnLoad)
-                {
-                    DontDestroyOnLoad(gameObject);
-                }
+                if (ShouldDontDestroyOnLoad) DontDestroyOnLoad(gameObject);
             }
             else if (_instance != this)
             {
-                Debug.LogWarning($"[MonoSingleton] Duplicate singleton of type {typeof(T)} detected. Destroying the new one.");
+                Debug.LogWarning(
+                    $"[MonoSingleton] Duplicate singleton of type {typeof(T)} detected. Destroying the new one.");
                 Destroy(gameObject);
             }
         }
