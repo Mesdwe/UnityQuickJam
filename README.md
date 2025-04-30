@@ -5,7 +5,7 @@ A lightweight and modular Unity framework designed to speed up Game Jam developm
 - Core Systems: GameManager, SceneLoader, Singleton utilities
 - Input Management: Keyboard, mouse, and controller input support
 - Audio Manager: Music and sound effect handling with fade transitions
-- UI Framework: Title screens, pause menus, game over screens, with UIManager control
+- UI Framework: Open/close UI screens with UIManager control
 - Save System: Basic save/load handling (PlayerPrefs or JSON based)
 - Resource Management: Object pooling and asynchronous asset loading
 - Utilities: Timer tools, debug helpers, extension methods

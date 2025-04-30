@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using QuickJam.Input;
+using QuickJam.Save;
 using QuickJam.UI;
 
 namespace QuickJam.Core
@@ -105,6 +106,27 @@ namespace QuickJam.Core
         {
             if (!ChangeState(GameState.Playing)) return;
             UIManager.Instance.CloseAllUI();
+
+            // TODO: move this to somewhere else
+            var saveName = "player";
+            if (SaveSystem.Instance.Exists(saveName))
+            {
+                GameData data = SaveSystem.Instance.Load<GameData>(saveName);
+                Debug.Log($"ID: {data.playerID}, PlayTime: {data.playTime}");
+            }
+            else
+            {
+                Debug.Log("No save file found, creating new game");
+                // temp test
+                var data = new GameData
+                {
+                    playerID = 1,
+                    playTime = 87.3f,
+                    isFirstTime = true
+                };
+                
+                SaveSystem.Instance.Save("player", data);
+            }
         }
 
         public void PauseGame()

@@ -1,4 +1,5 @@
 using QuickJam.Core;
+using QuickJam.Save;
 using QuickJam.UI;
 using UnityEngine;
 
@@ -13,6 +14,9 @@ namespace QuickJam.Samples.TestScripts
             TestUI popup =  UIManager.Instance.OpenUI(testUI, UILayer.Overlay);
 
             popup.OnStartButtonClicked = () => { GameManager.Instance.StartGame(); };
+            popup.OnDeleteSaveButtonClicked = () => { SaveSystem.Instance.Delete("player"); };
+            
+
         }
 
 
